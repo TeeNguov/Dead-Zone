@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f2eee4" />
+    <meta name="description" content="A fogbound voxel city inspired by Silent Hill. Explore deserted streets, encounter Nurses and Pyramid Head, and follow the signal." />
+    <title>Blocky City: Fogbound — Silent Hill inspired</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body>
+    <canvas id="world" aria-label="Blocky City 3D game world"></canvas>
+    <div id="loading"><span class="loading-cube"></span><b>THE FOG IS SETTLING</b><span>You remember this place. It does not remember you.</span></div>
+
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Blocky City home"><span class="brand-mark"><i></i><i></i><i></i></span><span>FOG<span class="brand-light">BOUND</span><small>A SILENT HILL–INSPIRED CITY</small></span></a>
+      <div class="location"><span class="live-dot"></span><span>SILENT HILL <b id="district">CENTRAL DISTRICT</b></span></div>
+      <div class="top-actions"><button class="icon-button" id="sound-button" aria-label="Enable sound" title="Sound">♪<span class="sound-slash">/</span></button><button class="icon-button" id="pause-button" aria-label="Pause game" title="Pause · Esc">Ⅱ</button></div>
+    </header>
+
+    <aside class="mission-card glass" id="mission-card">
+      <div class="eyebrow"><span class="tiny-square"></span><span id="mission-kicker">YOUR NEXT MOVE</span><span class="mission-number" id="mission-number">01 / 03</span></div>
+      <h2 id="mission-title">Something is out there.</h2>
+      <p id="mission-copy">Find a ride. Follow the signal. Watch the fog.</p>
+      <button class="mission-cta" id="mission-button"><span id="mission-action">Find your first gig</span><span>↗</span></button>
+      <div class="mission-progress" id="mission-progress" hidden><span id="mission-progress-fill"></span></div>
+      <div class="mission-meta" id="mission-meta" hidden><span id="mission-distance">0 m</span><span id="mission-timer"></span></div>
+    </aside>
+
+    <aside class="player-status glass">
+      <div class="cash"><span class="cash-label">YOUR POCKET</span><span id="cash">$250</span></div>
+      <div class="status-divider"></div><div class="heat"><div id="wanted" aria-label="Wanted level 0 of 5">★★★★★</div><span id="heat-label">KEEP IT CLEAN</span></div>
+      <div class="health"><span>+</span><div><i id="health-fill"></i></div><span id="health-value">100</span></div>
+    </aside>
+
+    <aside class="combat-panel glass" aria-label="Weapons">
+      <button id="weapon-switch" title="Switch weapon · Q"><span id="weapon-name">FISTS</span><b id="ammo-count">MELEE</b></button>
+      <span id="combat-state">1–3 EQUIP · F ATTACK · R RELOAD</span>
+      <div><button id="reload-button">Reload <kbd>R</kbd></button><button id="ammo-button">Ammo + <b>$50</b></button></div>
+    </aside>
+    <div id="crosshair" hidden aria-hidden="true">+</div>
+    <div class="toast" id="toast" role="status"><span id="toast-icon">↗</span><div><b id="toast-title"></b><span id="toast-copy"></span></div></div>
+    <div class="interaction" id="interaction" hidden><kbd>E</kbd><span>Get in the <b>Sunset GT</b></span></div>
+
+    <div class="bottom-left">
+      <button class="minimap glass" id="map-button" aria-label="Open city map"><canvas id="minimap" width="400" height="320"></canvas><div class="map-north">N ↑</div><div class="map-caption"><span class="live-dot"></span><b id="map-district">DOWNTOWN</b><kbd>M</kbd></div></button>
+      <div class="weather"><span id="weather-icon">≋</span><span id="world-time">02:17</span><span class="weather-line"></span><span>7° · VISIBILITY LOW · ASH FALLING</span></div>
+    </div>
+
+    <div class="drive-panel glass" id="drive-panel"><span class="vehicle-label" id="vehicle-label">ON FOOT</span><div><strong id="speed">00</strong><span id="speed-unit">KM/H</span></div><div class="gear"><span id="gear">WALK</span><div class="speed-bars" id="speed-bars"></div></div></div>
+    <footer class="controls glass"><span><kbd>W A S D</kbd><i id="move-hint">Move</i></span><span><kbd>E</kbd> <i>Enter / exit</i></span><span><kbd>SHIFT</kbd> <i id="shift-hint">Sprint</i></span><span><kbd>SPACE</kbd> <i id="space-hint">Jump</i></span><span class="extra-control"><kbd>M</kbd> <i>Map</i></span><button id="help-button" aria-label="Show controls">?</button></footer>
+    <div class="look-hint">RIGHT-DRAG TO LOOK <span>·</span> SCROLL TO ZOOM</div>
+    <div id="touch-controls" hidden><div class="touch-pad"><button data-key="KeyW" aria-label="Move forward">▲</button><div><button data-key="KeyA" aria-label="Move left">◀</button><button data-key="KeyS" aria-label="Move backward">▼</button><button data-key="KeyD" aria-label="Move right">▶</button></div></div><div class="touch-actions"><button id="touch-weapon" aria-label="Switch weapon">Q</button><button data-key="KeyF" aria-label="Attack">⚔</button><button id="touch-enter">E</button><button data-key="Space">⤒</button><button data-key="ShiftLeft">⇧</button></div></div>
+
+    <section class="welcome-overlay" id="welcome" aria-label="Welcome to Blocky City">
+      <div class="welcome-content"><div class="welcome-tag"><span class="live-dot"></span> YOU HAVE BEEN HERE BEFORE</div><h1>The fog<br>knows <em>your name.</em></h1><p>Empty streets. A broken signal. Shapes in the mist.<br>Keep moving. Some things are better left in the fog.</p><button class="primary-button" id="play-button">Enter the fog <span>↗</span></button><div class="welcome-note"><span>WASD to move</span><span>·</span><span>E to borrow a ride</span></div></div>
+      <div class="edition"><span>VOL. 01</span><b>THE FOGBOUND EDITION</b><span>SOME ROADS DON’T LEAD HOME.</span></div>
+    </section>
+
+    <dialog id="pause-dialog" class="panel-dialog"><div class="eyebrow">THE STATIC GOES QUIET</div><h2>A moment of silence.</h2><p>The fog is waiting on the other side.</p><button class="primary-button" id="resume-button">Back into the fog <span>↗</span></button><div class="settings-row"><label for="day-toggle">World atmosphere</label><button id="day-toggle">Fog world ≋</button></div><div class="settings-row"><label for="quality-select">Graphics</label><select id="quality-select"><option value="high">High</option><option value="low">Low · smoother</option></select></div><button class="text-button" id="recover-button">Recover to the nearest road</button><div class="pause-tip">ESC TO RESUME · YOUR CASH AND COMPLETED JOBS ARE SAVED ON THIS DEVICE</div></dialog>
+    <dialog id="help-dialog" class="panel-dialog"><button class="close-button" data-close="help-dialog" aria-label="Close controls">×</button><div class="eyebrow">A LITTLE STREET SMART</div><h2>Make yourself at home.</h2><div class="help-grid"><kbd>W A S D / ↑ ← ↓ →</kbd><span>Walk or drive</span><kbd>E</kbd><span>Enter or exit a nearby car</span><kbd>SHIFT</kbd><span>Sprint / boost</span><kbd>SPACE</kbd><span>Jump / handbrake</span><kbd>M</kbd><span>City map & jobs</span><kbd>1 / 2 / 3 · Q</kbd><span>Fists / pistol / SMG</span><kbd>CLICK / F</kbd><span>Attack · mouse aims</span><kbd>J</kbd><span>Punch</span><kbd>R</kbd><span>Reload weapon</span><kbd>X</kbd><span>Recover to the road</span><kbd>ESC</kbd><span>Pause / resume</span><kbd>RIGHT-DRAG / SCROLL</kbd><span>Orbit / zoom camera</span></div><p>Pick up glowing packages and follow the gold marker to finish a job. Collisions bring heat. Stay clear of the police until the stars fade.</p><button class="primary-button" data-close="help-dialog">Got it <span>↗</span></button></dialog>
+    <dialog id="map-dialog" class="map-dialog"><div class="map-heading"><div><div class="eyebrow">EVERY ROAD FEELS FAMILIAR</div><h2>Silent Hill</h2></div><button class="close-button" data-close="map-dialog" aria-label="Close map">×</button></div><div class="map-layout"><div class="large-map-wrap"><canvas id="large-map" width="700" height="700" aria-label="Map of Silent Hill streets, player and mission destination"></canvas><div class="map-legend"><span><i class="legend-you"></i>You</span><span><i class="legend-job"></i>Destination</span><span><i class="legend-police"></i>Police</span></div></div><div class="jobs"><div class="eyebrow">SIGNALS IN THE STATIC</div><h3>A way through.</h3><p>Three signals. Choose one to follow.</p><button class="job" data-job="0"><span class="job-icon">▣</span><span><b>Special delivery</b><small>Pick up a parcel. Cross the city.</small></span><strong>$400 ↗</strong></button><button class="job" data-job="1"><span class="job-icon">⚑</span><span><b>Coast to coast</b><small>4 checkpoints. One quick ride.</small></span><strong>$650 ↗</strong></button><button class="job" data-job="2"><span class="job-icon">★</span><span><b>Lose the tail</b><small>Draw attention. Find a way out.</small></span><strong>$900 ↗</strong></button><div class="job-notice" id="job-notice">Follow the gold marker after accepting a job.</div><div class="completed-jobs"><span>JOBS COMPLETED</span><b id="completed-jobs">00</b></div></div></div></dialog>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
