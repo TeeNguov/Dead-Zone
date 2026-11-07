@@ -12,9 +12,9 @@ export function circleHitsRect(x, z, radius, rect) {
 
 export function isBlocked(x, z, radius, obstacles) {
   return Math.abs(x) + radius > WORLD_LIMIT || Math.abs(z) + radius > WORLD_LIMIT ||
-    obstacles.some(shape => shape.radius !== undefined
-      ? Math.hypot(x - shape.x, z - shape.z) < radius + shape.radius
-      : circleHitsRect(x, z, radius, shape));
+    obstacles.some(shape => !shape.walkThrough && (shape.radius !== undefined
+      ? (x - shape.x) ** 2 + (z - shape.z) ** 2 < (radius + shape.radius) ** 2
+      : circleHitsRect(x, z, radius, shape)));
 }
 
 // Cars use overlapping circles along their full length, including bumpers.
@@ -41,11 +41,38 @@ export function moveBody(body, dx, dz, obstacles) {
   return hit;
 }
 
+function segmentRect(ax, az, bx, bz, left, right, top, bottom) {
+  let near = 0, far = 1;
+  const dx = bx - ax, dz = bz - az;
+  if (Math.abs(dx) < 1e-10) { if (ax < left || ax > right) return false; }
+  else { const a = (left - ax) / dx, b = (right - ax) / dx; near = Math.max(near, Math.min(a, b)); far = Math.min(far, Math.max(a, b)); }
+  if (Math.abs(dz) < 1e-10) { if (az < top || az > bottom) return false; }
+  else { const a = (top - az) / dz, b = (bottom - az) / dz; near = Math.max(near, Math.min(a, b)); far = Math.min(far, Math.max(a, b)); }
+  return near <= far;
+}
+function segmentCircle(ax, az, bx, bz, x, z, radius) {
+  const dx = bx - ax, dz = bz - az, lengthSq = dx * dx + dz * dz;
+  const t = lengthSq ? clamp(((x - ax) * dx + (z - az) * dz) / lengthSq, 0, 1) : 0;
+  return (ax + dx * t - x) ** 2 + (az + dz * t - z) ** 2 < radius * radius;
+}
 export function clearPath(from, to, radius, obstacles) {
-  const steps = Math.max(1, Math.ceil(distance(from, to) / radius));
-  for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    if (isBlocked(from.x + (to.x - from.x) * t, from.z + (to.z - from.z) * t, radius, obstacles)) return false;
+  const ax = from.x, az = from.z, bx = to.x, bz = to.z;
+  if (Math.max(Math.abs(ax), Math.abs(az), Math.abs(bx), Math.abs(bz)) + radius > WORLD_LIMIT) return false;
+  const minX = Math.min(ax, bx) - radius, maxX = Math.max(ax, bx) + radius;
+  const minZ = Math.min(az, bz) - radius, maxZ = Math.max(az, bz) + radius;
+  for (const shape of obstacles) {
+    if (shape.walkThrough) continue;
+    if (shape.radius !== undefined) {
+      if (shape.x + shape.radius < minX || shape.x - shape.radius > maxX || shape.z + shape.radius < minZ || shape.z - shape.radius > maxZ) continue;
+      if (segmentCircle(ax, az, bx, bz, shape.x, shape.z, radius + shape.radius)) return false;
+    } else {
+      const l = shape.x - shape.w / 2, r = shape.x + shape.w / 2, t = shape.z - shape.d / 2, b = shape.z + shape.d / 2;
+      if (r < minX || l > maxX || b < minZ || t > maxZ) continue;
+      // A swept circle against a rectangle is two expanded strips plus four rounded corners.
+      if (segmentRect(ax, az, bx, bz, l - radius, r + radius, t, b) || segmentRect(ax, az, bx, bz, l, r, t - radius, b + radius) ||
+          segmentCircle(ax, az, bx, bz, l, t, radius) || segmentCircle(ax, az, bx, bz, l, b, radius) ||
+          segmentCircle(ax, az, bx, bz, r, t, radius) || segmentCircle(ax, az, bx, bz, r, b, radius)) return false;
+    }
   }
   return true;
 }
@@ -118,7 +145,7 @@ export function roadRoute(from, to) {
 export const JOBS = [
   { title: 'Special delivery', reward: 400, duration: 150, points: [{ x: 39, z: 19 }, { x: -30, z: -72 }], instructions: ['Collect the parcel outside Paloma Post.', 'Deliver the parcel to the Northside shop.'] },
   { title: 'Coast to coast', reward: 650, duration: 100, points: [{ x: 90, z: 30 }, { x: 90, z: -90 }, { x: -30, z: -90 }, { x: -90, z: 30 }], instructions: ['Take a car through all four checkpoints.'] },
-  { title: 'Lose the tail', reward: 900, duration: 140, points: [{ x: -30, z: 90 }], instructions: ['Drive to the marker. Your contact is waiting.', 'Lose the police. Stay out of sight until the heat fades.'] },
+  { title: 'Lose the tail', reward: 900, duration: 140, points: [{ x: -30, z: 90 }], instructions: ['Drive to the marker. Your contact is waiting.', 'Lose the creatures. Keep your distance until the heat fades.'] },
 ];
 
 export function createMission(index) {

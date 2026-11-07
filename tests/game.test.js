@@ -127,6 +127,12 @@ test('generated world uses instancing and finite geometry throughout', () => {
   assert.equal(city.pedestrians.length, 36);
 });
 
+test('streets contain stopped cars and pursuing monsters', () => {
+  assert.ok(city.cars.every(car => car.speed === 0 && car.traffic === null));
+  assert.ok(city.pedestrians.every(monster => monster.monsterType && monster.speed >= 1.35 && monster.speed <= 5.3));
+  assert.ok(new Set(city.cars.slice(7).map(car => car.heading)).size > 5);
+});
+
 
 test('sprinting player cannot tunnel through another human', () => {
   const player = { x: -8, z: 0, radius: .5 };

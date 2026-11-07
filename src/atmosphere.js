@@ -20,7 +20,7 @@ export function createAtmosphere(scene, streetLights) {
     const light = new THREE.PointLight(0xc3ae79, 22, 15, 1.5);
     scene.add(light); return light;
   });
-  let time = 0;
+  let time = 0, lampTimer = 0, nearest = [];
   return {
     update(dt, position, heading, otherworld) {
       time += dt;
@@ -36,8 +36,14 @@ export function createAtmosphere(scene, streetLights) {
       pool.position.set(position.x, 4, position.z);
       beam.position.set(position.x, 3, position.z);
       beam.target.position.set(position.x - Math.sin(heading || 0) * 9, .2, position.z - Math.cos(heading || 0) * 9);
-      const nearest = [...streetLights].sort((a, b) => Math.hypot(a.x - position.x, a.z - position.z) - Math.hypot(b.x - position.x, b.z - position.z)).slice(0, 4);
+      lampTimer -= dt;
+      if (lampTimer <= 0) {
+        nearest = streetLights.filter(p => !p.destroyed).sort((a, b) => (a.x - position.x) ** 2 + (a.z - position.z) ** 2 - (b.x - position.x) ** 2 - (b.z - position.z) ** 2).slice(0, 4);
+        lampTimer = .5;
+      }
+      lamps.forEach(lamp => { lamp.intensity = 0; });
       nearest.forEach((p, i) => {
+        if (p.destroyed) return;
         lamps[i].position.set(p.x, 4.8, p.z);
         lamps[i].intensity = (otherworld ? 15 : 22) * (.96 + Math.sin(time * 1.6 + i * 3) * .04);
         lamps[i].color.set(otherworld ? 0xc86d45 : 0xc3ae79);

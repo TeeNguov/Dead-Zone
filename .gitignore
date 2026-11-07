@@ -2,3 +2,12 @@ node_modules/
 dist/
 .DS_Store
 *.log
+
+# Unused local audio libraries; only sounds/ is shipped.
+/SFX/
+/ambience1/
+/ambience2/
+/infected/
+/music/
+/physics/
+/weapons/
